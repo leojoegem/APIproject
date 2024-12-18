@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJAX Example</title>
+    <script>
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'other_content.html');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                document.getElementById('ajx').innerHTML = xhr.responseText;
+            }
+        };
+        function getContent() {
+            xhr.send();
+            document.getElementById('load').style.display = 'None';
+        }
+    </script>
+</head>
+<body>
+    <h1>View External Content</h1>
+    <button id = "load" onclick="getContent()">Get Content</button>
+    <div id="result"></div>
+</body>
+</html></html>
