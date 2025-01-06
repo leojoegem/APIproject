@@ -25,6 +25,18 @@ $motorcycle = $stmt->fetch_all(MYSQLI_ASSOC);
 <body>
     <div class="container mt-5">
         <h2 class="mb-4">Motorcycle List</h2>
+        
+        <!-- Search Form -->
+        <form method="POST" class="mb-4">
+            <div class="input-group">
+                <input type="text" class="form-control" name="search_term" placeholder="Search by make, model, year, or price" value="<?php echo isset($search_term) ? htmlspecialchars($search_term) : ''; ?>">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Table of motorcycles -->
         <table class="table table-striped table-hover">
             <thead class="thead-dark">
                 <tr>
