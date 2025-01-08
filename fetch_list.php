@@ -1,17 +1,46 @@
 <?php
 // fetch_list.php
-require_once 'dbConnect.php';
+require_once 'includes/dbConnect.php';
 
-if(isset($_POST['search_term'])) {
-    $search_term = $_POST['search_term'];
-    $sql = "SELECT * FROM Motorcycle WHERE make LIKE '%$search_term%' OR model LIKE '%$search_term%' OR year LIKE '%$search_term%' OR price LIKE '%$search_term%'";
+// Initialize search term
+$search_term = '';
+
+// Check if form is submitted and search_term is passed via POST
+if (isset($_POST['search_term']) && !empty($_POST['search_term'])) {
+    $search_term = '%' . $_POST['search_term'] . '%';  // Sanitize the search term with wildcards
+}
+
+// Prepare SQL query for fetching motorcycles, with or without search term
+if (!empty($search_term)) {
+    // SQL with search term
+    $sql = "SELECT * FROM Motorcycle WHERE make LIKE ? OR model LIKE ? OR year LIKE ? OR price LIKE ?";
 } else {
+    // SQL without search term
     $sql = "SELECT * FROM Motorcycle";
 }
 
-$stmt = $conn->query($sql);
+// Prepare the SQL statement
+$stmt = $conn->prepare($sql);
 
-$motorcycle = $stmt->fetch_all(MYSQLI_ASSOC);
+if ($stmt === false) {
+    die('Prepare failed: ' . htmlspecialchars($conn->error));
+}
+
+// Bind the search term if it's provided
+if (!empty($search_term)) {
+    $stmt->bind_param('ssss', $search_term, $search_term, $search_term, $search_term);
+}
+
+// Execute the query
+if (!$stmt->execute()) {
+    die('Execute failed: ' . htmlspecialchars($stmt->error));
+}
+
+// Get the result
+$result = $stmt->get_result();
+
+// Fetch all motorcycles
+$motorcycle = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -25,17 +54,7 @@ $motorcycle = $stmt->fetch_all(MYSQLI_ASSOC);
 <body>
     <div class="container mt-5">
         <h2 class="mb-4">Motorcycle List</h2>
-        
-        <!-- Search Form -->
-        <form method="POST" class="mb-4">
-            <div class="input-group">
-                <input type="text" class="form-control" name="search_term" placeholder="Search by make, model, year, or price" value="<?php echo isset($search_term) ? htmlspecialchars($search_term) : ''; ?>">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="submit">Search</button>
-                </div>
-            </div>
-        </form>
-
+    
         <!-- Table of motorcycles -->
         <table class="table table-striped table-hover">
             <thead class="thead-dark">
@@ -47,14 +66,21 @@ $motorcycle = $stmt->fetch_all(MYSQLI_ASSOC);
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($motorcycle as $motorcycle) : ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($motorcycle['make']); ?></td>
-                        <td><?php echo htmlspecialchars($motorcycle['model']); ?></td>
-                        <td><?php echo htmlspecialchars($motorcycle['year']); ?></td>
-                        <td><?php echo htmlspecialchars($motorcycle['price']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
+                <?php
+                // Check if there are motorcycles to display
+                if (empty($motorcycle)) {
+                    echo "<tr><td colspan='4'>No motorcycles found.</td></tr>";
+                } else {
+                    foreach ($motorcycle as $bike) : ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($bike['make']); ?></td>
+                            <td><?php echo htmlspecialchars($bike['model']); ?></td>
+                            <td><?php echo htmlspecialchars($bike['year']); ?></td>
+                            <td><?php echo htmlspecialchars($bike['price']); ?></td>
+                        </tr>
+                    <?php endforeach; 
+                }
+                ?>
             </tbody>
         </table>
     </div>
