@@ -1,45 +1,77 @@
 <?php
+// process_form.php
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Include PHPMailer autoload file
 require 'vendor/autoload.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
 
-// Collect form data
-$username = $_POST['username'];
-$email = $_POST['email'];
-$password = $_POST['password'];
+// Class to handle sending 2FA email
+class TwoFactorAuth {
+    private $mail;
+    
+    public function __construct() {
+        $this->mail = new PHPMailer(true);
+        $this->setupMail();
+    }
 
-// Generate a 6-digit random 2FA code
-$twoFactorCode = rand(100000, 999999);
+    private function setupMail() {
+        $this->mail->isSMTP();
+        $this->mail->Host = 'smtp.gmail.com';
+        $this->mail->SMTPAuth = true;
+        $this->mail->Username = 'your_email@gmail.com';  // Your email
+        $this->mail->Password = 'your_app_password';  // App-specific password
+        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $this->mail->Port = 587;
+        $this->mail->setFrom('your_email@gmail.com', 'Your Name');
+    }
 
-// Save the 2FA code in the session
-$_SESSION['twoFactorCode'] = $twoFactorCode;
-$_SESSION['username'] = $username;
-$_SESSION['email'] = $email;
-$_SESSION['password'] = password_hash($password, PASSWORD_DEFAULT); // Hash the password
+    public function send2FACode($email, $username, $code) {
+        try {
+            $this->mail->clearAddresses(); // Clear previous addresses
+            $this->mail->addAddress($email, $username);  // Recipient's email and name
+            $this->mail->isHTML(true);
+            $this->mail->Subject = 'Your 2FA Code';
+            $this->mail->Body = "Your 2FA code is: <b>$code</b>";
 
-// Send the 2FA code to the user's email
-$mail = new PHPMailer(true);
-try {
-    $mail->isSMTP();
-    $mail->Host = 'smtp.gmail.com';
-    $mail->SMTPAuth = true;
-    $mail->Username = 'leojoegem@gmail.com';  // Replace with your email
-    $mail->Password = 'adsv bzob lynp pitx';  // Replace with your email app-specific password
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port = 587;
+            $this->mail->send();
+            return true; // Return true on success
+        } catch (Exception $e) {
+            return "Email could not be sent. Mailer Error: {$this->mail->ErrorInfo}";
+        }
+    }
+}
 
-    $mail->setFrom('your-email@gmail.com', 'Josalah');
-    $mail->addAddress($email);  // Send to the provided email
+// Handle form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Collect form data
+    $username = htmlspecialchars(trim($_POST['username']));
+    $email = htmlspecialchars(trim($_POST['email']));
+    $password = htmlspecialchars(trim($_POST['password']));
 
-    $mail->isHTML(true);
-    $mail->Subject = 'Your 2FA Code';
-    $mail->Body = "Your 2FA code is: <b>$twoFactorCode</b>";
+    // Save form data to session
+    $_SESSION['username'] = $username;
+    $_SESSION['email'] = $email;
+    $_SESSION['password'] = password_hash($password, PASSWORD_DEFAULT); // Hash the password
 
-    $mail->send();
-    echo '2FA Code has been sent to your email. Please check your inbox.';
-} catch (Exception $e) {
-    echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    // Generate a 6-digit random 2FA code
+    $twoFactorCode = rand(100000, 999999);
+    $_SESSION['twoFactorCode'] = $twoFactorCode;
+
+    // Send 2FA code to the user's email
+    $twoFA = new TwoFactorAuth();
+    $sendResult = $twoFA->send2FACode($email, $username, $twoFactorCode);
+
+    if ($sendResult === true) {
+        // Redirect to the 2FA confirmation page
+        header('Location: confirm_2fa.php');
+        exit;
+    } else {
+        echo "Error: " . $sendResult;
+    }
 }
 ?>

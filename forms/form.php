@@ -1,3 +1,7 @@
+<?php
+// form.php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +13,7 @@
 <body>
     <div class="container mt-5">
         <h2>User Registration</h2>
-        <form action="send_email.php" method="post">
+        <form action="process_form.php" method="post">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" class="form-control" name="username" id="username" required>

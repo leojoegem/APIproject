@@ -1,23 +1,27 @@
 <?php
+// confirm_2fa.php
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Check if the user is redirected from the send_2fa.php
+// If 2FA code is not in session, redirect to form page
 if (!isset($_SESSION['twoFactorCode'])) {
-    header('Location: index.php'); // Redirect to the registration form if no code is set
+    header('Location: form.php');
     exit;
 }
 
-$message = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $enteredCode = $_POST['twoFactorCode'];
+// Handle the 2FA code verification
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $enteredCode = $_POST['code'];
 
-    // Check if the entered code matches the one stored in the session
+    // Check if entered code matches the one in the session
     if ($enteredCode == $_SESSION['twoFactorCode']) {
-        $message = "2FA code verified successfully! You can now proceed.";
-        // Here you can redirect to a success page or perform further actions (e.g., save user to the database)
-        // For example: header('Location: success.php'); exit;
+        // Successful verification
+        echo "2FA Verification successful!";
+        // You can now proceed with further actions, such as redirecting to a dashboard
     } else {
-        $message = "Invalid 2FA code. Please try again.";
+        // Invalid code
+        echo "Invalid 2FA code. Please try again.";
     }
 }
 ?>
@@ -32,16 +36,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="container mt-5">
-        <h2>Confirm 2FA Code</h2>
-        <?php if ($message): ?>
-            <div class="alert alert-info"><?php echo $message; ?></div>
-        <?php endif; ?>
-        <form action="" method="post">
+        <h2>Enter the 2FA Code</h2>
+        <form action="confirm_2fa.php" method="post">
             <div class="form-group">
-                <label for="twoFactorCode">Enter the 2FA Code</label>
-                <input type="text" class="form-control" name="twoFactorCode" id="twoFactorCode" required>
+                <label for="code">2FA Code</label>
+                <input type="text" class="form-control" name="code" id="code" required>
             </div>
-            <button type="submit" class="btn btn-primary">Verify Code</button>
+            <button type="submit" class="btn btn-primary">Verify</button>
         </form>
     </div>
 </body>
