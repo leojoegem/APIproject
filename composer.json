@@ -1,5 +1,8 @@
 {
-    "require": {
-        "phpmailer/phpmailer": "^6.9"
-    }
+    "name": "vendor/api",
+    "description": "API Project",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "require": {}
 }
