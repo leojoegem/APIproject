@@ -4,8 +4,10 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Include PHPMailer autoload file
-require 'vendor/autoload.php';
+// Include PHPMailer classes
+require 'path/to/PHPMailer/src/PHPMailer.php';
+require 'path/to/PHPMailer/src/SMTP.php';
+require 'path/to/PHPMailer/src/Exception.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -23,8 +25,8 @@ class TwoFactorAuth {
         $this->mail->isSMTP();
         $this->mail->Host = 'smtp.gmail.com';
         $this->mail->SMTPAuth = true;
-        $this->mail->Username = 'your_email@gmail.com';  // Your email
-        $this->mail->Password = 'your_app_password';  // App-specific password
+        $this->mail->Username = 'leojoegem@gmail.com';  // Your email
+        $this->mail->Password = 'adsv bzob lynp pitx';  // App-specific password
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mail->Port = 587;
         $this->mail->setFrom('your_email@gmail.com', 'Your Name');

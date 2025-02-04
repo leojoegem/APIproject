@@ -1,42 +1,133 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E2633wXjSkEh2U6UHDtUy4UJfjG" crossorigin="anonymous">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            padding: 20px;
-        }
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+session_start();
+include 'dbConnect.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require 'vendor/autoload.php';
 
-        #out_put {
-            margin-top: 20px;
-            font-size: 1.25rem;
-            color: #495057;
-            text-align: center;
+if (isset($_SESSION['user_id'])) {
+    header("Location: dashboard.php");
+    exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $_SESSION['email']=$email;
+
+    $sql = "SELECT * FROM users WHERE email='$email'";
+    $query = mysqli_query($conn, $sql);
+    $data = mysqli_fetch_array($query);
+
+    if ($data && password_verify($password, $data['password'])) {
+        $otp = rand(100000, 999999);
+        $otp_expiry = date("Y-m-d H:i:s", strtotime("+3 minute"));
+        $subject= "Your OTP for Login";
+        $message="Your OTP is: $otp";
+
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'leojoegem@gmail.com'; //host email 
+        $mail->Password = 'eofn inez hekr nfol'; // app password of your host email
+        $mail->Port = 587;
+        $mail->SMTPSecure = 'ssl';
+        $mail->isHTML(true);
+        $mail->setFrom('leojoegem@gmail.com', 'Online Examination System');//Sender's Email & Name
+        $mail->addAddress($email); //Receiver's Email and Name
+        $mail->Subject = ("$subject");
+        $mail->Body = $message;
+        $mail->send();
+
+        $sql1 = "UPDATE users SET otp='$otp', otp_expiry='$otp_expiry' WHERE id=".$data['id'];
+        $query1 = mysqli_query($conn, $sql1);
+
+        $_SESSION['temp_user'] = ['id' => $data['id'], 'otp' => $otp];
+        header("Location: otp_verification.php");
+        exit();
+    } else {
+        ?>
+        <script>
+           alert("Invalid Email or Password. Please try again.");
+                function navigateToPage() {
+                    window.location.href = 'index.php';
+                }
+                window.onload = function() {
+                    navigateToPage();
+                }
+        </script>
+        <?php 
+    
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <style type="text/css">
+        #container{
+            margin-left: 400px;
+            border: 1px solid black;
+            width: 440px;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        input[type=text],input[type=password]{
+            width: 300px;
+            height: 20px;
+            padding: 10px;
+        }
+        label{
+            font-size: 20px;
+            font-weight: bold;
+        }
+        form{
+            margin-left: 50px;
+        }
+        a{
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 21px;
+            color: blue;
+        }
+        a:hover{
+            cursor: pointer;
+            color: purple;
+        }
+        input[type=submit]{
+            width: 70px;
+            background-color: blue;
+            border: 1px solid blue;
+            color: white;
+            font-weight: bold;
+            padding: 7px;
+            margin-left: 130px;
+        }
+        input[type=submit]:hover{
+            background-color: purple;
+            cursor: pointer;
+            border: 1px solid purple;
         }
     </style>
 </head>
 <body>
-    <?php
-    // Handle the form submission
-    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['search_term'])) {
-        $input = htmlspecialchars($_POST['search_term']); // Sanitize user input
-        echo "<div id='out_put'>You searched for: $input</div>";
-    }
-    ?>
-
-    <!-- Include the reusable search bar -->
-    <?php include 'search_bar.php'; ?>
-
-    <div class="container mt-5">
-        <!-- Include Motorcycle list -->
-        <?php include('fetch_list.php'); ?>
+    <div id="container">
+        <form method="post" action="index.php">
+            <label for="email">Email</label><br>
+            <input type="text" name="email" placeholder="Enter Your Email" required><br><br>
+            <label for="password">Password:</label><br>
+            <input type="password" name="password" placeholder="Enter Your Password" required><br><br>
+            <input type="submit" name="login" value="Login"><br><br>
+            <label>Don't have an account? </label><a href="registration.php">Sign Up</a>
+        </form>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </body>
 </html>
