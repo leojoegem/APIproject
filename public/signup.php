@@ -1,27 +1,64 @@
 <?php
 session_start();
+include '../includes/dbConnect.php'; // Assuming the connection is set up in this file
+
+$error_message = ""; // Initialize error message
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get form data
+    $username = $_POST['username'];
     $email = $_POST['email'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
-    $name = $_POST['name'];
+    $user_role = $_POST['user_role'];
 
-    // Validation checks
-    if (empty($email) || empty($password) || empty($confirm_password) || empty($name)) {
+    // Validate inputs
+    if (empty($username) || empty($email) || empty($password) || empty($confirm_password) || empty($user_role)) {
         $error_message = "All fields are required.";
     } elseif ($password !== $confirm_password) {
         $error_message = "Passwords do not match.";
-    } elseif (in_array($email, $existing_users)) {
-        $error_message = "Email is already registered.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_message = "Invalid email format.";
     } else {
-        // Registration successful
-        // Normally, you would hash the password and store user info in a database
-        $_SESSION['registered'] = true;
-        $_SESSION['email'] = $email;
-        header('Location: login.php'); // Redirect to login page after successful registration
-        exit;
+        // Hash the password
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        try {
+            // Check if email or username already exists (assuming $conn is already set up in dbConnect.php)
+            $stmt = $conn->prepare('SELECT * FROM users WHERE email = ? OR username = ?'); 
+            $stmt->bind_param('ss', $email, $username); // 'ss' indicates two string parameters
+            $stmt->execute();
+            $existing_user = $stmt->get_result()->fetch_assoc(); // Get the result
+
+            if ($existing_user) {
+                $error_message = "Email or Username is already registered.";
+            } else {
+                // Insert new user into the database
+                $stmt = $conn->prepare('INSERT INTO users (username, email, password, role, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)');
+                $stmt->bind_param('ssss', $username, $email, $hashed_password, $user_role); // Bind parameters
+                $stmt->execute();
+
+                // Generate OTP
+                $otp = rand(100000, 999999);
+                $_SESSION['otp'] = $otp;
+                $_SESSION['email'] = $email;
+                $_SESSION['username'] = $username; // Store username
+                $_SESSION['user_role'] = $user_role; // Store user role
+
+                // Send OTP via email
+                $subject = "Your OTP for CampusClubs Registration";
+                $message = "Your OTP code is: $otp";
+                $headers = "From: leojoegem@gmail.com"; // Replace with your actual email
+
+                if (mail($email, $subject, $message, $headers)) {
+                    header('Location: otp_verification.php');
+                    exit;
+                } else {
+                    $error_message = "Failed to send OTP email. Please try again later.";
+                }
+            }
+        } catch (Exception $e) {
+            $error_message = "Error: " . $e->getMessage(); // Log error if needed
+        }
     }
 }
 ?>
@@ -40,7 +77,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;700;900&display=swap" rel="stylesheet">
-
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap-icons.css" rel="stylesheet">
     <link href="css/tooplate-little-fashion.css" rel="stylesheet">
@@ -124,16 +160,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="signup-container">
         <h2>Create an Account on <span style="color: #0069d9;">CampusClubs</span></h2>
 
-        <?php
-        if (isset($error_message)) {
-            echo "<div class='error-message'>$error_message</div>";
-        }
-        ?>
+        <?php if (!empty($error_message)): ?>
+            <div class="error-message"><?php echo $error_message; ?></div>
+        <?php endif; ?>
 
         <form action="" method="POST">
             <div class="form-group">
-                <label for="name">Full Name</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required>
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
             </div>
             <div class="form-group">
                 <label for="email">Email address</label>
@@ -146,6 +180,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="form-group">
                 <label for="confirm_password">Confirm Password</label>
                 <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+            </div>
+            <div class="form-group">
+                <label for="user_role">Select User Type</label>
+                <select class="form-control" id="user_role" name="user_role" required>
+                    <option value="student">Student</option>
+                    <option value="admin">Admin</option>
+                </select>
             </div>
             <button type="submit" class="btn-custom">Sign Up</button>
         </form>

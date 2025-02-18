@@ -7,7 +7,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <title>Tooplate's Little Fashion</title>
+        <title>CampusClubs</title>
 
         <!-- CSS FILES -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,7 +48,7 @@ https://www.tooplate.com/view/2127-little-fashion
                     </button>
 
                     <a class="navbar-brand" href="index.html">
-                        <strong><span>Little</span> Fashion</strong>
+                        <strong><span>Campus</span> Clubs</strong>
                     </a>
 
                     <div class="d-lg-none">
@@ -97,9 +97,9 @@ https://www.tooplate.com/view/2127-little-fashion
                         <div class="container">
                             <div class="row">
                                 <div class="col-lg-6 col-10">
-                                    <h1 class="slick-title">Cool Fashion</h1>
+                                    <h1 class="slick-title">CampusClubs</h1>
 
-                                    <p class="lead text-white mt-lg-3 mb-lg-5">Little fashion template comes with total 8 HTML pages provided by Tooplate website.</p>
+                                    <p class="lead text-white mt-lg-3 mb-lg-5">Find and join clubs of your choice all across the university..</p>
 
                                     <a href="about.html" class="btn custom-btn">Learn more about us</a>
                                 </div>
@@ -309,7 +309,7 @@ https://www.tooplate.com/view/2127-little-fashion
                     <div class="row">
                         
                         <div class="col-12 text-center">
-                            <h2 class="mb-5">Featured Products</h2>
+                            <h2 class="mb-5">Featured Clubs</h2>
                         </div>
 
                         <div class="col-lg-4 col-12 mb-3">
@@ -403,10 +403,8 @@ https://www.tooplate.com/view/2127-little-fashion
                 <div class="row">
 
                     <div class="col-lg-3 col-10 me-auto mb-4">
-                        <h4 class="text-white mb-3"><a href="index.html">Little</a> Fashion</h4>
+                        <h4 class="text-white mb-3"><a href="index.html">Campus</a> Clubs</h4>
                         <p class="copyright-text text-muted mt-lg-5 mb-4 mb-lg-0">Copyright © 2022 <strong>Little Fashion</strong></p>
-                        <br>
-                        <p class="copyright-text">Designed by <a href="https://www.tooplate.com/" target="_blank">Tooplate</a></p>
                     </div>
 
                     <div class="col-lg-5 col-8">
@@ -420,8 +418,6 @@ https://www.tooplate.com/view/2127-little-fashion
                             <li class="footer-menu-item"><a href="#" class="footer-menu-link">Privacy policy</a></li>
 
                             <li class="footer-menu-item"><a href="#" class="footer-menu-link">FAQs</a></li>
-
-                            <li class="footer-menu-item"><a href="#" class="footer-menu-link">Contact</a></li>
                         </ul>
                     </div>
 

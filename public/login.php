@@ -1,28 +1,48 @@
 <?php
-// Placeholder for authentication logic
+// Start session for user login tracking
 session_start();
 
-// Dummy credentials (replace this with database logic in production)
-$valid_email = "user@campusclubs.com";
-$valid_password = "password123";
+// Include your database connection file
+include('../includes/dbConnect.php'); // Assuming dbConnect.php connects to the database
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Get email, password, and role from the form
     $email = $_POST['email'];
     $password = $_POST['password'];
+    $role = $_POST['role'];
 
-    // Check credentials
-    if ($email === $valid_email && $password === $valid_password) {
-        // Successful login
-        $_SESSION['logged_in'] = true;
-        $_SESSION['email'] = $email;
-        header('Location: dashboard.php'); // Redirect to the dashboard
-        exit;
+    // Query to fetch user data based on email
+    $query = "SELECT * FROM users WHERE email = ?";
+    $stmt = $conn->prepare($query); // Prepare the statement
+    $stmt->bind_param("s", $email); // Bind the email to the query
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc(); // Fetch the user record
+    
+    // Check if user exists
+    if ($user) {
+        // Verify the password
+        if (password_verify($password, $user['password'])) {
+            // Check if the role matches
+            if ($role === $user['role']) {
+                // Successful login, set session variables
+                $_SESSION['logged_in'] = true;
+                $_SESSION['email'] = $email;
+                $_SESSION['role'] = $role;
+                header('Location: index.php'); // Redirect to dashboard
+                exit;
+            } else {
+                $error_message = "Invalid role. Please select the correct role.";
+            }
+        } else {
+            $error_message = "Invalid password. Please try again.";
+        }
     } else {
-        $error_message = "Invalid credentials, please try again.";
+        $error_message = "No user found with that email. Please check your email.";
     }
 }
 ?>
+
 
 <!doctype html>
 <html lang="en">
@@ -137,6 +157,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
             </div>
+            <div class="form-group">
+                <label for="role">Select Role</label>
+                <select class="form-control" id="role" name="role" required>
+                    <option value="student">Student</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
             <div class="d-flex justify-content-between mb-3">
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="rememberMe">
@@ -147,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <button type="submit" class="btn-custom">Login</button>
         </form>
         <div class="footer">
-            <p>Don't have an account? <a href="public/signup.php">Sign up</a></p>
+            <p>Don't have an account? <a href="signup.php">Sign up</a></p>
         </div>
     </div>
 

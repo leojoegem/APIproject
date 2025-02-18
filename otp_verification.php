@@ -1,35 +1,59 @@
 <?php
 session_start();
-include 'dbConnect.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verify_otp'])) {
-    $otp = $_POST['otp'];
-    $userId = $_SESSION['temp_user']['id'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $entered_otp = $_POST['otp']; // Get the entered OTP
 
-    $stmt = $conn->prepare("SELECT otp, otp_expiry FROM users WHERE id = ?");
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $data = $result->fetch_assoc();
+    if ($entered_otp == $_SESSION['otp']) {
+        // OTP is correct, user is verified
+        unset($_SESSION['otp']); // Clear OTP from session
 
-    if ($data['otp'] == $otp && strtotime($data['otp_expiry']) > time()) {
-        $_SESSION['user_id'] = $userId;
-        header("Location: dashboard.php");
+        // Now you can proceed with completing the registration or log them in
+        // Here, we assume registration is completed and redirect the user to the login page
+        header('Location: login.php');
+        exit;
     } else {
-        echo "<script>alert('Invalid or expired OTP. Please try again.'); window.location.href = 'otp_verification.php';</script>";
+        // OTP is incorrect
+        $error_message = "Incorrect OTP. Please try again.";
     }
 }
 ?>
-<!DOCTYPE html>
-<html>
+
+<!doctype html>
+<html lang="en">
 <head>
-    <title>OTP Verification - CampusClubs</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>CampusClubs - OTP Verification</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h2>Enter OTP</h2>
-    <form method="post" action="otp_verification.php">
-        <input type="text" name="otp" placeholder="Enter OTP" required>
-        <input type="submit" name="verify_otp" value="Verify OTP">
-    </form>
+    <div class="container">
+        <div class="signup-container">
+            <h2>Verify Your OTP</h2>
+
+            <?php
+            if (isset($error_message)) {
+                echo "<div class='alert alert-danger'>$error_message</div>";
+            }
+            ?>
+
+            <form action="" method="POST">
+                <div class="form-group">
+                    <label for="otp">Enter OTP</label>
+                    <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter the OTP sent to your email" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Verify OTP</button>
+            </form>
+
+            <div class="footer">
+                <p>Didn't receive the email? <a href="signup.php">Request a new one</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
