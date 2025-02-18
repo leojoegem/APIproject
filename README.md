@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
@@ -64,3 +65,23 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+=======
+# APIproject
+# User Registration with Two-Factor Authentication (2FA)
+
+This project implements a user registration system with two-factor authentication (2FA) using PHP and PHPMailer. Users can register with a username, email, and password, and they will receive a 2FA code via email to complete the registration process.
+
+## Features
+
+- User registration with username, email, and password.
+- Password hashing for secure storage.
+- Two-factor authentication via email.
+- Simple and responsive user interface using Bootstrap.
+
+## Requirements
+
+- PHP 7.2 or higher
+- A web server (e.g., Apache, Nginx)
+- Composer (for managing dependencies)
+- An email account (e.g., Gmail) for sending 2FA codes
+>>>>>>> origin/main

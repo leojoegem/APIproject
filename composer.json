@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
@@ -68,4 +69,12 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true
+=======
+    "name": "vendor/api",
+    "description": "API Project",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "require": {}
+>>>>>>> origin/main
 }
