@@ -1,10 +1,8 @@
 {
-<<<<<<< HEAD
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
-    "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "name": "vendor/api",
+    "type": "library",
+    "description": "API Project",
     "license": "MIT",
     "require": {
         "php": "^8.2",
@@ -69,12 +67,4 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true
-=======
-    "name": "vendor/api",
-    "description": "API Project",
-    "type": "library",
-    "license": "MIT",
-    "minimum-stability": "stable",
-    "require": {}
->>>>>>> origin/main
 }
